@@ -1,0 +1,19 @@
+name: Source safety scan
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Run scanner unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Scan source files
+        run: python3 tools/security_scan.py --root .
