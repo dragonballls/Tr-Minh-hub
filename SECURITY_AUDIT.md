@@ -6,33 +6,33 @@ Scope: static source inspection only; no original scripts were executed.
 
 ## Decision
 
-The original repository contained multiple overlapping third-party hubs and loaders with outbound webhook reporting. Because it was not possible to establish that every runtime path was safe, the current branch removes those scripts rather than falsely labelling them safe.
+The original repository contained overlapping third-party hubs and loaders with outbound webhook reporting. Because it was not possible to establish that every runtime path was safe, the current branch removes those scripts rather than falsely labelling them safe.
 
 ## Confirmed privacy-risk patterns in the removed sources
 
-- `windyhub.lua`: looks up the machine's public IP through an IP lookup service and sends it with the Roblox username to a Discord webhook.
-- `9h16bbcaaak8289h29bbc928281682iccjhab.lua`: contains Discord webhook reporting of Roblox player/profile data (user ID, username/display name, country, account age, level/status) and a loader for additional remote code.
-- `AnhTaibeta.lua`, `AnhTaibeta1.lua`, `Anhtai.txt`, `Khang_Mod_Game_Version_1.6.txt`, and `rimus_hub_1.lua`: contain webhook/outbound-post code; some also assemble player-profile details.
-- `Xsea-2.js`: contains hard-coded Discord webhook endpoints and outbound posting logic.
+- `windyhub.lua`: looked up the machine's public IP through an IP lookup service and sent it with the Roblox username to a Discord webhook.
+- `9h16bbcaaak8289h29bbc928281682iccjhab.lua`: contained Discord webhook reporting of Roblox player/profile data (user ID, username/display name, country, account age, level/status) and a loader for additional remote code.
+- `AnhTaibeta.lua`, `AnhTaibeta1.lua`, `Anhtai.txt`, `Khang_Mod_Game_Version_1.6.txt`, and `rimus_hub_1.lua`: contained webhook/outbound-post code; some also assembled player-profile details.
+- `Xsea-2.js`: contained hard-coded Discord webhook endpoints and outbound posting logic.
 - `Ak Gaming.txt`: an extremely large, effectively opaque source that could not be meaningfully reviewed through static inspection.
 
-## Why the original target was not retained as “safe”
+## Why the original game script was not retained
 
-`x-seaHUB.txt` had no obvious direct webhook POST or clear Roblox-cookie read in the static scan, but it executes three dependencies downloaded at runtime (Fluent plus two add-ons). Their runtime behavior cannot be certified by inspecting the target file alone, and a mutable URL can change without a commit in this repository. A likely final-stage logic defect was also observed around a `Workspace.ReplicatedStorage` lookup and inconsistent Cursed Skeleton Boss name checks. No runtime test was performed.
+The target file had no obvious direct webhook POST or clear Roblox-cookie read in its static scan, but it executed three dependencies downloaded at runtime. Their runtime behavior could not be certified by inspecting the target file alone, and mutable URLs can change independently of this repository. A likely logic defect was also observed in the final-stage code. No runtime test was performed.
 
-## What this branch changes
+## What the current repository provides
 
-- Removes all 25 script/source files from the current working tree.
-- Replaces the minimal README with a security-first explanation.
-- Adds this audit report.
+- Removes all 25 original script/source files from the current working tree.
+- Adds this audit report and a security-focused README.
 - Adds `tools/security_scan.py`, an offline static pattern scanner that does not execute code or use the network.
-- Adds unit tests and a GitHub Actions workflow for repeatable scans.
-- Leaves the original `main` branch unchanged until this pull request is reviewed and merged.
+- Scans source-like files in directories and ZIP archives without extracting the archives.
+- Limits source-file size, ZIP entry count, and total scanned candidate data.
+- Adds unit tests and a GitHub Actions workflow for repeatable checks.
 
 ## Limitations
 
-The scanner is a defense-in-depth filter, not malware detection or a guarantee of safety. It may flag legitimate code and can miss obfuscated code, split strings, indirect behavior, or unseen remote dependencies. Every finding needs human review. A run with no source files means there was no script to inspect; it does not certify a runtime application.
+The scanner is a defense-in-depth filter, not malware detection or a safety guarantee. It may flag legitimate code and miss obfuscated code, split strings, indirect behavior, or unseen remote dependencies. Every finding needs human review. A scan with no source files does not certify a runtime application.
 
-Deleting files in a new commit does not erase their previous Git history, copies in the upstream repository, or files already downloaded to a computer. If a previously downloaded script was executed, stop using it and review the account and executor environment. Changing a GitHub branch does not clean a local machine.
+Removing files from the current Git tree does not erase old Git history, upstream copies, or files already downloaded to a computer. If an old script was run, stop using it and review your account security and the environment in which it ran. Changing a repository branch does not clean a local machine.
 
-This branch is a documentation and source-audit project, not a functioning game hub. It intentionally does not restore or operationalize game-exploit automation.
+This is a source-review project, not a functioning game hub. It intentionally does not restore or operationalize game-exploit automation.
