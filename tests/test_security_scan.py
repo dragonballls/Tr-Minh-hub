@@ -15,12 +15,13 @@ class SecurityScanTests(unittest.TestCase):
         self.assertIn("remote fetch or loader", labels)
 
     def test_detects_webhook_and_post(self):
-        sample = "url = 'dis" + "cord.com/api/webhooks/secret'\nhttp." + "post(url, payload)"
+        sample = "url = 'dis" + "cord.com/api/webhooks/secret'\nHttp" + "Post(url, payload)"
         labels = {item["rule"] for item in scan_text(sample)}
         self.assertIn("Discord webhook endpoint", labels)
+        self.assertIn("outbound POST/request primitive", labels)
 
     def test_detects_credential_access(self):
-        sample = "value = 'ROBLO" + "XCookie'"
+        sample = "value = 'ROBLO" + "SECURITY'"
         labels = {item["rule"] for item in scan_text(sample)}
         self.assertIn("credential or session-cookie access", labels)
 
